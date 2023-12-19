@@ -1,0 +1,22 @@
+version: '3'
+
+services:
+  mongodb:
+    image: mongo
+    ports:
+      - "27017:27017"
+    env_file:
+      - .env
+    volumes:
+      - ./init/init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js
+    command: ["mongod", "--bind_ip_all"]
+
+  mysql:
+    image: mysql:latest
+    env_file:
+      - .env
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./init/init.sql:/docker-entrypoint-initdb.d/init.sql
+
