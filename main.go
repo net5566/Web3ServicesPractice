@@ -3,6 +3,9 @@ package main
 import (
 	"time"
 
+	"github.com/gin-gonic/gin"
+
+	"web3-services/practice/api/routes"
 	"web3-services/practice/services"
 )
 
@@ -23,6 +26,10 @@ func main() {
 			services.IndexBlockRPC(mongodb, mysqldb, rpcClient, 0)
 		}
 	}()
+
+	router := gin.Default()
+	routes.SetupRoutes(router)
+	router.Run("localhost:8080")
 
 	select {}
 }
