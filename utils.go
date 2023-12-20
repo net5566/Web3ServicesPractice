@@ -108,3 +108,19 @@ func getBlockHeight(rpcClient *rpc.Client) int64 {
 
 	return blockHeight
 }
+
+func handleMySQLDisconnected(mysqldb *gorm.DB) {
+	dbInstance, _ := mysqldb.DB()
+
+	if err := dbInstance.Close(); err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println("Disconnected from MySQL!")
+}
+
+func handleMongoDisconnected(mongoClient *mongo.Client) {
+	if err := mongoClient.Disconnect(context.Background()); err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println("Disconnected from MongoDB!")
+}
