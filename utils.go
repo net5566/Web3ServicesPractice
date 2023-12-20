@@ -13,6 +13,8 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
+
+	"web3-services/practice/types"
 )
 
 func loadDotEnv() {
@@ -21,13 +23,6 @@ func loadDotEnv() {
 		fmt.Println("Error loading .env file")
 		return
 	}
-}
-
-type Block struct {
-	BlockNum   int64  `gorm:"primaryKey;autoIncrement:false"`
-	BlockHash  string `gorm:"not null"`
-	BlockTime  int64  `gorm:"not null"`
-	ParentHash string `gorm:"not null"`
 }
 
 func connectMySQL() *gorm.DB {
@@ -46,7 +41,7 @@ func connectMySQL() *gorm.DB {
 
 	fmt.Println("Connected to MySQL!")
 
-	err = mysqldb.AutoMigrate(&Block{})
+	err = mysqldb.AutoMigrate(&types.Block{})
 
 	if err != nil {
 		log.Fatal(err)
