@@ -5,7 +5,9 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strconv"
 
+	"github.com/ethereum/go-ethereum/rpc"
 	"github.com/joho/godotenv"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -82,4 +84,32 @@ func connectMongoClient() *mongo.Client {
 	fmt.Println("Connected to MongoDB!")
 
 	return mongoClient
+}
+
+// RPC for Biance
+func establishRPC() *rpc.Client {
+	rpcClient, err := rpc.Dial("https://data-seed-prebsc-2-s3.binance.org:8545/")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return rpcClient
+}
+
+// Get the height of blocks from RPC
+func getBlockHeight(rpcClient *rpc.Client) int64 {
+	var blockHeightString string
+	err := rpcClient.Call(&blockHeightString, "eth_blockNumber")
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	blockHeight, err := strconv.ParseInt(blockHeightString, 0, 64)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return blockHeight
 }
