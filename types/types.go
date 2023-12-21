@@ -7,6 +7,14 @@ type Block struct {
 	ParentHash string `gorm:"not null"`
 }
 
+type BlockComplete struct {
+	BlockNum     int64    `json:"block_num"`
+	BlockHash    string   `json:"block_hash"`
+	BlockTime    int64    `json:"block_time"`
+	ParentHash   string   `json:"parent_hash"`
+	Transactions []string `json:"transactions"`
+}
+
 type Log struct {
 	Data  string `bson:"data"`
 	Index int    `bson:"index"`
