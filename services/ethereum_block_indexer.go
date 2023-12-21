@@ -7,8 +7,11 @@ import (
 	"strconv"
 
 	"github.com/ethereum/go-ethereum/rpc"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 
 	"web3-services/practice/types"
 )
@@ -67,7 +70,7 @@ func getTransactionReceipt(rpcClient *rpc.Client, txHash *string) *RPCTransactio
 }
 
 func insertBlockBatch(mysqldb *gorm.DB, blockBatch []types.Block, batchSize int) {
-	result := mysqldb.CreateInBatches(blockBatch, batchSize)
+	result := mysqldb.Clauses(clause.OnConflict{UpdateAll: true}).CreateInBatches(blockBatch, batchSize)
 
 	if result.Error != nil {
 		panic(result.Error)
@@ -75,16 +78,49 @@ func insertBlockBatch(mysqldb *gorm.DB, blockBatch []types.Block, batchSize int)
 }
 
 func insertBlockTransactions(blockTransactionsCollection *mongo.Collection, blockTransactions types.BlockTransactions) {
-	_, err := blockTransactionsCollection.InsertOne(context.Background(), blockTransactions)
+	// Prepare upsert operations
+	upsertFilter := bson.D{{"block_num", blockTransactions.BlockNum}}
+	upsertUpdate := bson.D{
+		{"$set", bson.D{{"transactions", blockTransactions.Transactions}}},
+		{"$setOnInsert", bson.D{{"block_num", blockTransactions.BlockNum}}},
+	}
 
+	// Execute update one with upsert operations
+	_, err := blockTransactionsCollection.UpdateOne(context.Background(), upsertFilter, upsertUpdate, options.Update().SetUpsert(true))
 	if err != nil {
 		panic(err)
 	}
 }
 
 func insertTransactions(transactionCollection *mongo.Collection, transactionInterfaces []interface{}) {
-	_, err := transactionCollection.InsertMany(context.Background(), transactionInterfaces)
+	// Prepare upsert operations
+	var upsertOperations []mongo.WriteModel
+	for _, transaction := range transactionInterfaces {
+		upsertFilter := bson.D{{"tx_hash", transaction.(types.Transaction).Hash}}
+		upsertUpdate := bson.D{
+			{"$set", bson.D{
+				{"from", transaction.(types.Transaction).From},
+				{"to", transaction.(types.Transaction).To},
+				{"value", transaction.(types.Transaction).Value},
+				{"nonce", transaction.(types.Transaction).Nonce},
+				{"data", transaction.(types.Transaction).Data},
+				{"logs", transaction.(types.Transaction).Logs},
+			}},
+			{"$setOnInsert", bson.D{{"tx_hash", transaction.(types.Transaction).Hash}}},
+		}
 
+		// Create upsert operation
+		upsertOperation := mongo.NewUpdateOneModel()
+		upsertOperation.SetFilter(upsertFilter)
+		upsertOperation.SetUpdate(upsertUpdate)
+		upsertOperation.SetUpsert(true)
+
+		// Append upsert operation to the list
+		upsertOperations = append(upsertOperations, upsertOperation)
+	}
+
+	// Execute bulk write with upsert operations
+	_, err := transactionCollection.BulkWrite(context.Background(), upsertOperations, options.BulkWrite().SetOrdered(false))
 	if err != nil {
 		panic(err)
 	}
