@@ -22,8 +22,12 @@ func GetBlockByNumber(ginContext *gin.Context) {
 		ginContext.JSON(http.StatusBadRequest, gin.H{"error": "Invalid blcok number"})
 	}
 
-	var block types.Block
 	mysqldb, _ := ginContext.MustGet(constants.MYSQL_DB).(*gorm.DB)
+
+	var lastBlock types.Block
+	var block types.Block
+
+	mysqldb.Order("block_num DESC").Last(&lastBlock)
 	err = mysqldb.Where("block_num = ?", blockNum).First(&block).Error
 
 	if err != nil {
@@ -53,6 +57,7 @@ func GetBlockByNumber(ginContext *gin.Context) {
 		BlockTime:    block.BlockTime,
 		ParentHash:   block.ParentHash,
 		Transactions: blockTransactions.Transactions,
+		IsStable:     lastBlock.BlockNum-block.BlockNum >= constants.BLOCK_STABILITY_THRESHOLD,
 	}
 
 	ginContext.JSON(http.StatusOK, result)
@@ -86,5 +91,14 @@ func GetLatestBlocks(ginContext *gin.Context) {
 		return
 	}
 
-	ginContext.JSON(http.StatusOK, blocks)
+	var result []types.BlockPlus
+
+	for index, block := range blocks {
+		result = append(result, types.BlockPlus{
+			Block:    block,
+			IsStable: index >= constants.BLOCK_STABILITY_THRESHOLD,
+		})
+	}
+
+	ginContext.JSON(http.StatusOK, result)
 }

@@ -170,7 +170,7 @@ func initParams(mysqldb *gorm.DB, rpcClient *rpc.Client, initBlockNum int) (int,
 	if count > 0 {
 		var lastBlock types.Block
 		mysqldb.Last(&lastBlock)
-		startNum = int(lastBlock.BlockNum) + 1
+		startNum = int(lastBlock.BlockNum) - constants.BLOCK_STABILITY_THRESHOLD + 1
 		blockHeight := getBlockHeight(rpcClient)
 
 		if blockHeight-lastBlock.BlockNum < 100 {
