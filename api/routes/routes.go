@@ -6,12 +6,12 @@ import (
 	"web3-services/practice/api/handlers"
 )
 
-func SetupRoutes(r *gin.Engine) {
-	blocks := r.Group("/blocks")
+func SetupRoutes(router *gin.Engine) {
+	blocks := router.Group("/blocks")
 	{
 		blocks.GET("/", handlers.GetLatestBlocks)
 		blocks.GET("/:blockNumber", handlers.GetBlockByNumber)
 	}
 
-	r.GET("/transaction/:txHash", handlers.GetTransactionByHash)
+	router.GET("/transaction/:txHash", handlers.GetTransactionByHash)
 }

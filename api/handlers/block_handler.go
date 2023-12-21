@@ -4,8 +4,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func GetBlockByNumber(c *gin.Context) {
+func GetBlockByNumber(ginContext *gin.Context) {
 }
 
-func GetLatestBlocks(c *gin.Context) {
+func GetLatestBlocks(ginContext *gin.Context) {
 }

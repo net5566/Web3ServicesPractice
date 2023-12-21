@@ -4,5 +4,5 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func GetTransactionByHash(c *gin.Context) {
+func GetTransactionByHash(ginContext *gin.Context) {
 }
