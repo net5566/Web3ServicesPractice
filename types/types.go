@@ -1,10 +1,10 @@
 package types
 
 type Block struct {
-	BlockNum   int64  `gorm:"primaryKey;autoIncrement:false"`
-	BlockHash  string `gorm:"not null"`
-	BlockTime  int64  `gorm:"not null"`
-	ParentHash string `gorm:"not null"`
+	BlockNum   int64  `gorm:"primaryKey;autoIncrement:false" json:"block_num`
+	BlockHash  string `gorm:"not null" json:"block_hash"`
+	BlockTime  int64  `gorm:"not null" json:"block_time"`
+	ParentHash string `gorm:"not null" json:"parent_hash"`
 }
 
 type BlockComplete struct {

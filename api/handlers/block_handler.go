@@ -59,4 +59,32 @@ func GetBlockByNumber(ginContext *gin.Context) {
 }
 
 func GetLatestBlocks(ginContext *gin.Context) {
+	limitStr := ginContext.Query("limit")
+	limit, err := strconv.Atoi(limitStr)
+
+	if err != nil {
+		ginContext.JSON(http.StatusBadRequest, gin.H{"error": "Invalid limit number"})
+	}
+
+	if limit < 1 {
+		limit = 1
+	} else if limit > 100 {
+		limit = 100
+	}
+
+	mysqldb, _ := ginContext.MustGet(constants.MYSQL_DB).(*gorm.DB)
+
+	var blocks []types.Block
+	err = mysqldb.Order("block_num DESC").Limit(limit).Find(&blocks).Error
+
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			ginContext.JSON(http.StatusNotFound, gin.H{"error": "Data not found"})
+			return
+		}
+		ginContext.JSON(http.StatusInternalServerError, gin.H{"error": "Server Internal Error"})
+		return
+	}
+
+	ginContext.JSON(http.StatusOK, blocks)
 }
