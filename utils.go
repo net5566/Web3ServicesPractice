@@ -7,12 +7,15 @@ import (
 	"os"
 
 	"github.com/ethereum/go-ethereum/rpc"
+	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 
+	"web3-services/practice/api/middleware"
+	"web3-services/practice/api/routes"
 	"web3-services/practice/types"
 )
 
@@ -104,4 +107,9 @@ func handleMongoDisconnected(mongoClient *mongo.Client) {
 		log.Fatal(err)
 	}
 	fmt.Println("Disconnected from MongoDB!")
+}
+
+func setupRoutes(router *gin.Engine, mongodb *mongo.Database, mysqldb *gorm.DB) {
+	router.Use(middleware.AttachDatabasesToContext(mongodb, mysqldb))
+	routes.SetupRoutes(router)
 }

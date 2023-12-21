@@ -7,7 +7,6 @@ import (
 	"syscall"
 	"time"
 
-	"web3-services/practice/api/routes"
 	"web3-services/practice/services"
 
 	"github.com/gin-gonic/gin"
@@ -31,7 +30,7 @@ func main() {
 	}()
 
 	router := gin.Default()
-	routes.SetupRoutes(router)
+	setupRoutes(router, mongodb, mysqldb)
 	go router.Run("localhost:8080")
 
 	select {

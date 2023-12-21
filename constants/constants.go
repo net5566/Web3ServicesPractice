@@ -1,6 +1,8 @@
 package constants
 
 const (
+	MONGO_DB                      = "mongodb"
+	MYSQL_DB                      = "mysqldb"
 	TRANSACTION_COLLECTION        = "Transaction"
 	BLOCK_TRANSACTINOS_COLLECTION = "BlockTransactions"
 	RPC_BLOCK_NUMBER              = "eth_blockNumber"
