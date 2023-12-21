@@ -162,7 +162,7 @@ func initParams(mysqldb *gorm.DB, rpcClient *rpc.Client, initBlockNum int) (int,
 	var startNum int
 	var endNum int
 
-	if err := mysqldb.Table("blocks").Count(&count).Error; err != nil {
+	if err := mysqldb.Model(&types.Block{}).Count(&count).Error; err != nil {
 		log.Fatal(err)
 	}
 
