@@ -13,13 +13,13 @@ type Log struct {
 }
 
 type Transaction struct {
-	Hash  string `bson:"tx_hash"`
-	From  string `bson:"from"`
-	To    string `bson:"to"`
-	Value string `bson:"value"`
-	Nonce int    `bson:"nonce"`
-	Data  string `bson:"data"`
-	Logs  []Log  `bson:"logs"`
+	Hash  string `bson:"tx_hash" json:"tx_hash"`
+	From  string `bson:"from" json:"from"`
+	To    string `bson:"to" json:"to"`
+	Value string `bson:"value" json:"value"`
+	Nonce int    `bson:"nonce" json:"nonce"`
+	Data  string `bson:"data" json:"data"`
+	Logs  []Log  `bson:"logs" json:"logs"`
 }
 
 type BlockTransactions struct {
