@@ -13,6 +13,7 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 
+	"web3-services/practice/constants"
 	"web3-services/practice/types"
 )
 
@@ -31,7 +32,7 @@ func convertToBlock(block *RPCBlock) types.Block {
 // Get the height of blocks from RPC
 func getBlockHeight(rpcClient *rpc.Client) int64 {
 	var blockHeightString string
-	err := rpcClient.Call(&blockHeightString, "eth_blockNumber")
+	err := rpcClient.Call(&blockHeightString, constants.RPC_BLOCK_NUMBER)
 
 	if err != nil {
 		log.Fatal(err)
@@ -48,7 +49,7 @@ func getBlockHeight(rpcClient *rpc.Client) int64 {
 
 func getBlockByNumber(rpcClient *rpc.Client, blockNum int) *RPCBlock {
 	var block RPCBlock
-	err := rpcClient.Call(&block, "eth_getBlockByNumber", fmt.Sprintf("0x%x", blockNum), true)
+	err := rpcClient.Call(&block, constants.RPC_GET_BLOCK_BY_NUMBER, fmt.Sprintf("0x%x", blockNum), true)
 
 	if err != nil {
 		log.Fatal(err)
@@ -60,7 +61,7 @@ func getBlockByNumber(rpcClient *rpc.Client, blockNum int) *RPCBlock {
 func getTransactionReceipt(rpcClient *rpc.Client, txHash *string) *RPCTransactionReceipt {
 	var transactionReceipt RPCTransactionReceipt
 
-	err := rpcClient.Call(&transactionReceipt, "eth_getTransactionReceipt", *txHash)
+	err := rpcClient.Call(&transactionReceipt, constants.RPC_GET_TRANSACTION_RECEIPT, *txHash)
 
 	if err != nil {
 		log.Fatal(err)
@@ -208,8 +209,8 @@ func IndexBlockRPC(mongodb *mongo.Database, mysqldb *gorm.DB, rpcClient *rpc.Cli
 			blockBatch = nil
 		}
 
-		transactionCollection := mongodb.Collection("Transaction")
-		blockTransactionsCollection := mongodb.Collection("BlockTransactions")
+		transactionCollection := mongodb.Collection(constants.TRANSACTION_COLLECTION)
+		blockTransactionsCollection := mongodb.Collection(constants.BLOCK_TRANSACTINOS_COLLECTION)
 
 		if len(block.Transactions) > 0 {
 			var transactionHashes []string
